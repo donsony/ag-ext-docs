@@ -1,10 +1,18 @@
 import json
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+# Add project root to sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.sync_docs import sync_docs_session, get_known_brain_roots, find_latest_conversation
 
 
 class TestSyncDocsEndToEnd(unittest.TestCase):
@@ -79,6 +87,52 @@ class TestSyncDocsEndToEnd(unittest.TestCase):
         self.assertEqual(json.loads(proc.stdout.strip()), {})
         docs_dir = self.workspace / ".docs"
         self.assertTrue(docs_dir.exists())
+
+    def test_sync_docs_session_programmatic_api(self):
+        res = sync_docs_session(
+            workspace_path=str(self.workspace),
+            conversation_id="sdk-conv-123",
+            transcript_path=str(self.transcript),
+            artifact_dir=str(self.artifacts)
+        )
+        self.assertTrue(res["success"])
+        self.assertFalse(res["skipped"])
+        self.assertEqual(res["conversation_id"], "sdk-conv-123")
+        self.assertEqual(res["archived_artifacts_count"], 2)
+        self.assertTrue(res["transcript_synced"])
+        self.assertTrue(res["index_updated"])
+
+    def test_multi_runtime_brain_discovery_with_env(self):
+        # Create a mock Antigravity 2.0 / CLI brain directory
+        mock_brain = Path(self.temp_dir) / "mock_gemini" / "antigravity" / "brain"
+        conv_folder = mock_brain / "mock-conv-2026"
+        conv_logs = conv_folder / ".system_generated" / "logs"
+        conv_logs.mkdir(parents=True)
+        shutil.copy2(self.transcript, conv_logs / "transcript.jsonl")
+        shutil.copy2(self.artifacts / "implementation_plan.md", conv_folder / "implementation_plan.md")
+
+        old_env = os.environ.get("ANTIGRAVITY_BRAIN_DIR")
+        try:
+            os.environ["ANTIGRAVITY_BRAIN_DIR"] = str(mock_brain)
+            roots = get_known_brain_roots()
+            self.assertTrue(any(str(mock_brain).lower() in str(r).lower() for r in roots))
+
+            latest = find_latest_conversation([mock_brain])
+            self.assertIsNotNone(latest)
+            self.assertEqual(latest[0], "mock-conv-2026")
+
+            # Perform sync using auto-discovery
+            res = sync_docs_session(
+                workspace_path=str(self.workspace),
+                conversation_id="mock-conv-2026"
+            )
+            self.assertTrue(res["success"])
+            self.assertTrue(res["transcript_synced"])
+        finally:
+            if old_env:
+                os.environ["ANTIGRAVITY_BRAIN_DIR"] = old_env
+            else:
+                os.environ.pop("ANTIGRAVITY_BRAIN_DIR", None)
 
 
 if __name__ == "__main__":

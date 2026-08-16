@@ -47,6 +47,19 @@ class TestConfigLoader(unittest.TestCase):
         self.assertTrue(excluded)
         self.assertIn("Matched excluded project", reason)
 
+    def test_detect_antigravity_runtimes(self):
+        loader = ConfigLoader(workspace_path=str(self.workspace))
+        runtimes = loader.detect_antigravity_runtimes()
+        self.assertIn("ide", runtimes)
+        self.assertIn("app_2_0", runtimes)
+        self.assertIn("cli", runtimes)
+        self.assertIn("sdk", runtimes)
+        self.assertIn("global_customizations", runtimes)
+        self.assertEqual(runtimes["ide"]["name"], "Antigravity IDE")
+        self.assertEqual(runtimes["app_2_0"]["name"], "Antigravity 2.0")
+        self.assertEqual(runtimes["cli"]["name"], "Antigravity CLI (agy)")
+        self.assertEqual(runtimes["sdk"]["name"], "Antigravity Python SDK")
+
 
 if __name__ == "__main__":
     unittest.main()

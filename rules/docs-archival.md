@@ -1,6 +1,12 @@
 # Project Documentation & Artifact Archival Standards
 
-When working in this workspace, Antigravity is configured with the `ag-docs-sync` extension which automatically syncs, timestamps, and indexes all project documentation and artifacts into the `.docs/` directory upon completion.
+When working in this workspace, Antigravity is configured with the `ag-docs-sync` extension which automatically syncs, timestamps, and indexes all project documentation, artifacts, and session transcripts into the `.docs/` directory.
+
+`ag-docs-sync` universally supports all Antigravity runtimes:
+- **Antigravity 2.0 (Desktop App)**
+- **Antigravity CLI (`agy`)**
+- **Antigravity IDE (VS Code-based)**
+- **Antigravity Python SDK (`google-antigravity`)**
 
 ## Documentation Guidelines
 
@@ -17,6 +23,7 @@ When working in this workspace, Antigravity is configured with the `ag-docs-sync
    - `.docs/research/`: Technical notes, audits, benchmark docs.
    - `.docs/diagrams/`: System diagrams and visualizations.
    - `.docs/media/`: Generated UI mockups and visual assets.
+   - `.docs/scratch/`: Temporary test scripts and data.
    - `.docs/logs/`: Color-coded session logs, thought process transcripts, and timelines.
    - `.docs/INDEX.md`: Master documentation index.
 

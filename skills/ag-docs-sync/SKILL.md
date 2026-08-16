@@ -1,63 +1,100 @@
 ---
 name: ag-docs-sync
 description: >-
-  Manage and trigger the Antigravity Documentation & Session Log Archival Extension.
+  Manage and trigger the Antigravity Documentation & Session Log Archival Extension across all
+  Antigravity versions (Antigravity 2.0, Antigravity CLI agy, Antigravity IDE, and Antigravity SDK).
   Use to sync artifacts to .docs/, rebuild documentation indexes, manage project exclusions,
   and inspect build session transcripts.
 ---
 
-# Antigravity Documentation & Session Log Archiver (`ag-docs-sync`)
+# Universal Antigravity Documentation & Session Archiver (`ag-docs-sync`)
 
-This skill provides instructions and helper actions for the `ag-docs-sync` extension.
+This skill provides operational workflows and commands for `ag-docs-sync` across all Antigravity runtimes:
+- **Antigravity IDE** (VS Code AI-First IDE)
+- **Antigravity 2.0** (Desktop Application)
+- **Antigravity CLI** (`agy`)
+- **Antigravity Python SDK** (`google-antigravity`)
 
 ---
 
-## 1. Manual Sync & Backfill
+## 1. Supported Antigravity Runtimes
 
-To manually sync the current session or a previous conversation to `.docs/`:
+| Runtime | Integration Method | Automatic Sync Trigger |
+| :--- | :--- | :--- |
+| **Antigravity IDE** | `.vsix` extension + Universal plugin | Session completion, status bar, command palette |
+| **Antigravity 2.0** | Universal global plugin (`~/.gemini/config/plugins`) | Lifecycle hook (`Stop`), desktop app integration |
+| **Antigravity CLI (`agy`)** | Universal global plugin + CLI commands | Lifecycle hook (`Stop`), CLI arguments |
+| **Antigravity Python SDK** | `ag_docs_sync` Python package / Hook class | `AntigravityDocsHook` context manager or `sync_session()` |
+
+---
+
+## 2. Python SDK Programmatic Usage (`google-antigravity`)
+
+When building agent pipelines using the Antigravity Python SDK:
+
+```python
+import asyncio
+from google.antigravity import Agent, LocalAgentConfig, CapabilitiesConfig
+from ag_docs_sync import AntigravityDocsHook, sync_on_exit
+
+# Option A: Automatic archival on exit
+async def run_agent():
+    config = LocalAgentConfig(capabilities=CapabilitiesConfig())
+    
+    with sync_on_exit(workspace_path="."):
+        async with Agent(config) as agent:
+            response = await agent.chat("Implement database migration scripts")
+            # ... process response ...
+
+# Option B: Explicit session hook
+hook = AntigravityDocsHook(workspace_path=".")
+# ... execute agent ...
+hook.sync(conversation_id="conv-abc-123")
+```
+
+---
+
+## 3. Manual Sync & Backfill CLI
+
+To manually trigger a synchronization or backfill past sessions:
 
 ```bash
+# Auto-discover latest session across all Antigravity runtimes
+python scripts/sync_docs.py --workspace "<workspace_path>"
+
+# Specific conversation ID
 python scripts/sync_docs.py --workspace "<workspace_path>" --conversation-id "<conv_id>"
-```
 
-Options:
-- `--workspace`, `-w`: Path to the project workspace root.
-- `--conversation-id`, `-c`: Conversation ID to sync.
-- `--transcript`, `-t`: Explicit path to `transcript.jsonl`.
-- `--artifacts`, `-a`: Explicit path to artifact folder.
-- `--force`, `-f`: Bypass project exclusion checks.
+# Explicit paths
+python scripts/sync_docs.py -w "." -t "C:/path/to/transcript.jsonl" -a "C:/path/to/artifacts"
+```
 
 ---
 
-## 2. Managing Project Exclusions
-
-### Exclude a Project from Global Auto-Sync
+## 4. Multi-Runtime Installer Commands
 
 ```bash
+# Setup for all detected Antigravity runtimes
+python install.py --all
+
+# Check multi-runtime ecosystem status
+python install.py status
+
+# Install IDE extension
+python install.py --ide
+
+# Install Python SDK package
+python install.py --sdk
+
+# Manage project exclusions
 python install.py exclude "D:/Projects/PrivateApp"
-```
-
-### Re-Enable a Project
-
-```bash
 python install.py unexclude "D:/Projects/PrivateApp"
-```
-
-### List All Excluded Projects
-
-```bash
 python install.py list-excluded
 ```
 
-### Local Workspace Opt-Out
-Alternatively, create an empty `.docs-ignore` file in any project's root:
-```bash
-echo. > .docs-ignore
-```
-
 ---
 
-## 3. Directory Layout in `.docs/`
+## 5. Directory Layout in `.docs/`
 
 ```text
 .docs/
@@ -81,9 +118,7 @@ echo. > .docs-ignore
 
 ---
 
-## 4. Rebuilding the Master Index
-
-If you've added or moved documents in `.docs/` manually, run:
+## 6. Rebuilding the Master Index
 
 ```bash
 python -c "from scripts.artifact_manager import ArtifactManager; ArtifactManager('.').update_index_file()"

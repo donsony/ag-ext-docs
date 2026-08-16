@@ -167,7 +167,18 @@ var ConfigManager = class {
       if (!fs2.existsSync(destDir)) {
         fs2.mkdirSync(destDir, { recursive: true });
       }
-      const itemsToSync = ["plugin.json", "hooks.json", "config.default.json", "scripts", "rules", "skills", "README.md"];
+      const itemsToSync = [
+        "plugin.json",
+        "hooks.json",
+        "config.default.json",
+        "scripts",
+        "rules",
+        "skills",
+        "ag_docs_sync",
+        "setup.py",
+        "pyproject.toml",
+        "README.md"
+      ];
       for (const item of itemsToSync) {
         const srcPath = path2.join(extensionPath, item);
         const dstPath = path2.join(destDir, item);
@@ -188,7 +199,7 @@ var ConfigManager = class {
           fs2.copyFileSync(defaultConfig, configFile);
         }
       }
-      outputChannel.appendLine(`[Agent Sync] Verified AI Agent plugin registration at: ${destDir}`);
+      outputChannel.appendLine(`[Agent Sync] Verified AI Agent universal plugin registration at: ${destDir}`);
     } catch (err) {
       outputChannel.appendLine(`[Agent Sync Warning] Could not auto-link agent plugin: ${err.message}`);
     }
@@ -224,7 +235,7 @@ var ConfigManager = class {
     }
     const files = fs2.readdirSync(source);
     for (const file of files) {
-      if (file === "__pycache__" || file.endsWith(".pyc")) {
+      if (file === "__pycache__" || file.endsWith(".pyc") || file.endsWith(".pyo")) {
         continue;
       }
       const curSource = path2.join(source, file);

@@ -1,47 +1,108 @@
-# 🚀 Antigravity Docs & Session Log Archival Extension
+# 🚀 Universal Antigravity Docs & Session Log Archival Extension
 
 > **Created by Don Sony and [infuse.ae](https://infuse.ae).**
 
-A **hybrid Antigravity IDE Extension & AI Agent Plugin** that automatically captures, categorizes, timestamps, and indexes all project documents, brain artifacts, and color-coded conversation session logs into a clean `.docs/` directory across **all your projects**.
+A universal documentation and session transcript archival engine for Google Antigravity. Automatically captures, categorizes, timestamps, and indexes all project plans, walkthroughs, brain artifacts, and color-coded session logs into a clean `.docs/` directory across **all your projects**.
 
 ---
 
-## 🌟 Dual-Layer Architecture
+## 🌐 Full Support Across All Antigravity Runtimes & Versions
 
-`ag-docs-sync` works simultaneously at two levels with **zero conflicts**:
+`ag-docs-sync` is built to seamlessly support all versions and types of Google Antigravity:
+
+| Runtime / Edition | Interface / Type | How `ag-docs-sync` Integrates |
+| :--- | :--- | :--- |
+| **Antigravity IDE** | Standalone AI-First IDE (VS Code based) | GUI `.vsix` extension, sidebar tree view, status bar widget, command palette, and auto-sync. |
+| **Antigravity 2.0** | Standalone Desktop Application | Universal agent plugin (`~/.gemini/config/plugins/ag-docs-sync`), desktop lifecycle hooks (`Stop`), canvas auto-archival. |
+| **Antigravity CLI (`agy`)** | Terminal CLI & TUI Interface | Automatic brain & transcript discovery across runs, CLI flags, terminal status reporting. |
+| **Antigravity Python SDK** | `google-antigravity` Library | `ag_docs_sync` Python package, `AntigravityDocsHook` lifecycle hook, context manager `sync_on_exit()`. |
 
 ```mermaid
 graph TD
-    subgraph IDE_UI ["🖥️ Antigravity IDE (VS Code Host)"]
-        UI_EXT["Extensions > Installed (ag-docs-sync)"]
-        CMD["Command Palette & Status Bar"]
-        SETTINGS["IDE Settings UI"]
-        TREE["Sidebar Explorer: .docs/ Tree View"]
+    subgraph RUNTIMES ["🪐 Google Antigravity Multi-Runtime Ecosystem"]
+        IDE["🖥️ Antigravity IDE (VS Code-based)"]
+        APP["📱 Antigravity 2.0 Desktop App"]
+        CLI["💻 Antigravity CLI (agy)"]
+        SDK["🐍 Antigravity Python SDK (google-antigravity)"]
     end
 
-    subgraph AGENT_CORE ["🤖 Antigravity AI Agent Engine"]
-        PLUGIN["~/.gemini/config/plugins/ag-docs-sync"]
-        SKILL["Skills & Rules (ag-docs-sync)"]
-        HOOKS["Lifecycle Hooks (Stop Event)"]
+    subgraph ENGINE ["⚡ ag-docs-sync Universal Engine"]
+        PLUGIN["Universal Plugin & Hooks (~/.gemini/config/plugins)"]
+        PY_PKG["Python SDK Package (ag_docs_sync)"]
+        IDE_EXT["IDE Extension (.vsix)"]
+        DISCOVERY["Multi-Runtime Brain & Transcript Resolver"]
     end
 
-    subgraph ENGINE ["🐍 Shared Python Sync Engine"]
-        SCRIPTS["scripts/sync_docs.py & artifact_manager.py"]
-        CONFIG["Single Source of Truth: config.json"]
-        OUTPUT[".docs/ (Project Documentation & Logs)"]
+    subgraph OUTPUT [".docs/ Project Documentation Catalog"]
+        PLANS[".docs/plans/ (Plans & Architecture)"]
+        WALK[".docs/walkthroughs/ (Walkthroughs & Releases)"]
+        LOGS[".docs/logs/ (Color-Coded Transcripts & Timelines)"]
+        INDEX[".docs/INDEX.md (Master Catalog)"]
     end
 
-    UI_EXT -->|Invokes & Monitors| ENGINE
-    AGENT_CORE -->|Automates on task completion| ENGINE
-    ENGINE --- CONFIG
-    ENGINE -->|Writes to| OUTPUT
-    UI_EXT -.->|Auto-links/Synchronizes| PLUGIN
+    IDE --> IDE_EXT
+    APP --> PLUGIN
+    CLI --> PLUGIN
+    SDK --> PY_PKG
+
+    IDE_EXT --> DISCOVERY
+    PLUGIN --> DISCOVERY
+    PY_PKG --> DISCOVERY
+
+    DISCOVERY --> PLANS
+    DISCOVERY --> WALK
+    DISCOVERY --> LOGS
+    DISCOVERY --> INDEX
 ```
 
-### 1. Antigravity IDE GUI Extension
+---
+
+## 🐍 Python SDK Integration (`google-antigravity`)
+
+When using the official Antigravity Python SDK (`pip install google-antigravity`), integrate `ag-docs-sync` with just 2 lines of code:
+
+### 1. Using the Context Manager (Recommended)
+```python
+import asyncio
+from google.antigravity import Agent, LocalAgentConfig, CapabilitiesConfig
+from ag_docs_sync import sync_on_exit
+
+async def main():
+    config = LocalAgentConfig(
+        system_instructions="You are an expert full-stack developer.",
+        capabilities=CapabilitiesConfig()
+    )
+
+    # Automatically archives plans, artifacts, and transcripts to .docs/ upon exit
+    with sync_on_exit(workspace_path="."):
+        async with Agent(config) as agent:
+            response = await agent.chat("Build an authenticated REST API")
+            async for token in response:
+                print(token, end="", flush=True)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### 2. Using the Hook Adapter Object
+```python
+from ag_docs_sync import AntigravityDocsHook
+
+hook = AntigravityDocsHook(workspace_path="./my-project")
+
+# ... run agent workflow ...
+
+# Explicitly trigger archival for a specific conversation session
+hook.sync(conversation_id="session-uuid")
+```
+
+---
+
+## 🖥️ Antigravity IDE GUI Extension
+
 - **Visible in `Extensions >> Installed`** in Antigravity IDE / VS Code.
 - **Status Bar Widget**: Displays real-time sync status (`$(book) Docs: Active`) with one-click manual sync.
-- **Sidebar Tree View**: Browse indexed `.docs/` categories (Plans, Walkthroughs, Decisions, Session Logs) directly from the IDE activity bar.
+- **Sidebar Tree View**: Browse indexed `.docs/` categories (Plans, Walkthroughs, Research, Diagrams, Media, Session Logs) in the Activity Bar.
 - **Command Palette Commands**:
   - `Antigravity Docs: Sync Now` — Immediately sync project artifacts.
   - `Antigravity Docs: Open .docs Directory` — Jump straight to documentation.
@@ -49,53 +110,54 @@ graph TD
   - `Antigravity Docs: Toggle Auto-Sync On/Off` — Toggle global master switch.
   - `Antigravity Docs: Exclude Current Workspace` — Opt out current workspace.
   - `Antigravity Docs: Re-enable Current Workspace` — Re-enable current workspace.
-  - `Antigravity Docs: Show Status & Diagnostic Info` — Print diagnostic health check.
-
-### 2. Antigravity AI Agent Plugin
-- Installed in `~/.gemini/config/plugins/ag-docs-sync` (or `<workspace>/.agents/plugins/ag-docs-sync`).
-- Uses Antigravity's `Stop` lifecycle hook (`hooks.json`) to trigger automatic background archival whenever the AI finishes a task.
-- Provides `ag-docs-sync` skill (`SKILL.md`) for AI-assisted documentation management.
+  - `Antigravity Docs: Show Status & Diagnostic Info` — Print diagnostic health check across runtimes.
 
 ---
 
-## 🔒 Zero Conflict Guarantee
+## 📦 Universal Installation & CLI
 
-The IDE extension and the AI agent plugin share:
-- **A Single Source of Truth**: All configurations and project exclusions reside in `~/.gemini/config/plugins/ag-docs-sync/config.json`.
-- **Idempotent File Syncing**: File hashing (MD5) and timestamp checks ensure that manual triggers from the IDE UI and automated AI agent hooks never collide or duplicate writes.
-- **Synchronized Exclusions**: Excluding or re-enabling a project via the IDE Command Palette applies immediately to both the AI agent and the GUI.
-
----
-
-## 📦 Installation & Setup
-
-### Option 1: Install Both IDE Extension & Agent Plugin (Recommended)
-
-1. **Build and package the `.vsix` extension:**
-   ```bash
-   python install.py --vsix
-   ```
-2. **Install in Antigravity IDE:**
-   - In Antigravity IDE, press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac).
-   - Type **`Extensions: Install from VSIX...`** and select `ag-docs-sync-1.0.2.vsix`.
-   - *The extension will activate, appear in `Extensions >> Installed`, and automatically verify the AI agent plugin.*
-
-### Option 2: Install AI Agent Plugin Only (CLI / Background)
-
+### 1. One-Step Universal Setup (All Antigravity Editions)
 ```bash
-# Windows
-.\install.bat
-
-# PowerShell
-.\install.ps1
-
-# Cross-platform Python
-python install.py
+python install.py --all
 ```
+This configures the global AI plugin for Antigravity 2.0 / CLI, builds & installs the IDE extension, and installs the Python SDK package.
 
-### Check Installation Status
+### 2. Multi-Runtime Status Check
 ```bash
 python install.py status
+```
+*Outputs real-time detection of installed Antigravity runtimes:*
+```text
+=================================================================
+ 🚀 Antigravity Extension Status: ag-docs-sync
+=================================================================
+  • AI Agent Plugin (Global) : ✅ Installed
+  • Global Plugin Location   : C:\Users\user\.gemini\config\plugins\ag-docs-sync
+  • Master Auto-Sync Switch  : 🟢 Enabled
+  • Excluded Projects Count  : 0
+-----------------------------------------------------------------
+ 📡 Antigravity Multi-Runtime Ecosystem Detection:
+  • Antigravity IDE           : ✅ Detected -> C:\Users\user\.gemini\antigravity-ide
+  • Antigravity 2.0           : ✅ Detected -> C:\Users\user\.gemini\antigravity
+  • Antigravity CLI (agy)     : ✅ Detected -> C:\Users\user\.gemini\antigravity-cli
+  • Antigravity Python SDK    : ✅ Detected -> Installed in Python environment
+  • Global Customizations Root: ✅ Detected -> C:\Users\user\.gemini\config
+=================================================================
+```
+
+### 3. Individual Component Targets
+```bash
+# Antigravity IDE VSIX package & install
+python install.py --ide
+
+# Antigravity Python SDK package
+python install.py --sdk
+
+# Global Plugin only (Antigravity 2.0 & CLI)
+python install.py install --global
+
+# Local workspace plugin only
+python install.py install --local "D:/Projects/MyApp"
 ```
 
 ---
@@ -119,7 +181,7 @@ python install.py list-excluded
 ```
 
 ### Via Local Marker File (`.docs-ignore`)
-Place an empty `.docs-ignore` file in the project's root folder:
+Place an empty `.docs-ignore` file in the project root:
 ```bash
 echo. > .docs-ignore
 ```
@@ -157,22 +219,18 @@ my-project/
 
 ## 📝 Changelog
 
-### v1.0.2
-- **Hybrid IDE & Agent Architecture**:
-  - Added VS Code / Antigravity IDE GUI Extension manifest and runtime (`package.json`, `dist/extension.js`).
-  - Added **Extensions → Installed** visibility.
-  - Added **Status Bar Widget** (`$(book) Docs: Active`) with manual sync trigger.
-  - Added **Sidebar Tree View** (`Project Documentation (.docs/)`) in the Activity Bar.
-  - Added Command Palette commands (`Sync Now`, `Open .docs`, `Open Session Logs`, `Exclude/Include Workspace`, `Show Status`).
-  - Added **Zero-Conflict Coexistence Engine**: Shared single source of truth configuration and MD5 hash idempotency.
-  - Packaged installable `.vsix` bundle via `python install.py --vsix`.
-
-### v1.0.1
-- **Automated Lifecycle Hooks & Session Log Archival**:
-  - Integrated Antigravity `Stop` event hook to automatically archive artifacts on task completion.
-  - Color-coded markdown session logs with tool execution badges and thought block collapsing.
-  - Categorized subfolder organization (`plans/`, `walkthroughs/`, `research/`, `diagrams/`, `media/`, `scratch/`, `logs/`).
-  - Timestamped snapshot history and master catalog `INDEX.md`.
+### v1.0.2 - Universal Multi-Version & Multi-Type Antigravity Support
+- **Full Support for All Antigravity Editions**:
+  - **Antigravity 2.0**: Native desktop app lifecycle integration & canvas archiving.
+  - **Antigravity CLI (`agy`)**: Automatic transcript & multi-brain discovery across terminal sessions.
+  - **Antigravity IDE**: AI-first IDE extension (`.vsix`), activity bar tree view, status bar widget, command palette.
+  - **Antigravity Python SDK (`google-antigravity`)**: First-class `ag_docs_sync` package, `AntigravityDocsHook`, and `sync_on_exit()` context manager.
+- **Universal Multi-Runtime Discovery**:
+  - Automatic cross-discovery across `antigravity-ide`, `antigravity`, `antigravity-2.0`, `antigravity-app`, `antigravity-cli`, and `antigravity-sdk`.
+  - Environment variable overrides: `ANTIGRAVITY_BRAIN_DIR`, `ANTIGRAVITY_DATA_DIR`, `AGY_DATA_DIR`, `GEMINI_HOME`.
+- **Ecosystem Management & Diagnostics**:
+  - `python install.py --all` for 1-click universal installation.
+  - `python install.py status` for real-time multi-runtime diagnostic reporting.
 
 ---
 
@@ -193,4 +251,3 @@ python -m unittest discover tests
 
 ## 📄 License
 MIT License
-

@@ -7,6 +7,8 @@ __pycache__/
 env/
 venv/
 .venv/
+*.egg-info/
+build/
 
 # Antigravity temporary task logs & internal files
 .system_generated/
@@ -19,4 +21,3 @@ venv/
 node_modules/
 *.vsix
 .vscode-test/
-

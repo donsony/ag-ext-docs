@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ag-docs-sync"
+version = "1.0.3"
+description = "Universal Documentation & Session Archiver for Google Antigravity (Antigravity 2.0, CLI, IDE, and SDK)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+  { name = "Don Sony", email = "support@infuse.ae" }
+]
+keywords = ["antigravity", "docs", "artifacts", "session-logs", "archival", "markdown", "google-antigravity"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://github.com/donsony/ag-ext-docs"
+Repository = "https://github.com/donsony/ag-ext-docs"
+
+[project.scripts]
+ag-docs-sync = "scripts.sync_docs:main"

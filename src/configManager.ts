@@ -21,7 +21,18 @@ export class ConfigManager {
         fs.mkdirSync(destDir, { recursive: true });
       }
 
-      const itemsToSync = ['plugin.json', 'hooks.json', 'config.default.json', 'scripts', 'rules', 'skills', 'README.md'];
+      const itemsToSync = [
+        'plugin.json',
+        'hooks.json',
+        'config.default.json',
+        'scripts',
+        'rules',
+        'skills',
+        'ag_docs_sync',
+        'setup.py',
+        'pyproject.toml',
+        'README.md'
+      ];
 
       for (const item of itemsToSync) {
         const srcPath = path.join(extensionPath, item);
@@ -48,7 +59,7 @@ export class ConfigManager {
         }
       }
 
-      outputChannel.appendLine(`[Agent Sync] Verified AI Agent plugin registration at: ${destDir}`);
+      outputChannel.appendLine(`[Agent Sync] Verified AI Agent universal plugin registration at: ${destDir}`);
     } catch (err: any) {
       outputChannel.appendLine(`[Agent Sync Warning] Could not auto-link agent plugin: ${err.message}`);
     }
@@ -90,7 +101,7 @@ export class ConfigManager {
 
     const files = fs.readdirSync(source);
     for (const file of files) {
-      if (file === '__pycache__' || file.endsWith('.pyc')) {
+      if (file === '__pycache__' || file.endsWith('.pyc') || file.endsWith('.pyo')) {
         continue;
       }
       const curSource = path.join(source, file);
