@@ -1,0 +1,36 @@
+{
+  "enabled": true,
+  "docs_root": ".docs",
+  "exclude_projects": [],
+  "exclude_patterns": [],
+  "opt_in_mode": false,
+  "timestamp_format": "%Y-%m-%d_%H%M%S",
+  "subfolders": {
+    "plans": "plans",
+    "walkthroughs": "walkthroughs",
+    "research": "research",
+    "diagrams": "diagrams",
+    "media": "media",
+    "scratch": "scratch",
+    "raw_artifacts": "raw_artifacts",
+    "logs": "logs"
+  },
+  "keep_latest_symlink_or_copy": true,
+  "session_logging": {
+    "enabled": true,
+    "include_thoughts": true,
+    "include_tools": true,
+    "include_qa": true,
+    "include_prompts": true,
+    "collapse_thoughts": true,
+    "collapse_tool_outputs": true,
+    "color_coding": {
+      "prompt": "cyan",
+      "thought": "purple",
+      "qa": "amber",
+      "tool_success": "green",
+      "tool_error": "red",
+      "summary": "blue"
+    }
+  }
+}

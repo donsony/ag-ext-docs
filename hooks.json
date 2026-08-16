@@ -1,0 +1,12 @@
+{
+  "ag-docs-sync": {
+    "enabled": true,
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python scripts/sync_docs.py",
+        "timeout": 60
+      }
+    ]
+  }
+}
