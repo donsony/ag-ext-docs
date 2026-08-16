@@ -1,7 +1,8 @@
 {
   "name": "ag-docs-sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Antigravity extension to automatically archive, categorize, and timestamp all project documents, artifacts, and color-coded conversation session logs in a structured .docs/ directory.",
+  "repository": "https://github.com/donsony/ag-ext-docs",
   "author": {
     "name": "Don Sony",
     "company": "infuse.ae",
