@@ -9,8 +9,10 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 # Ensure UTF-8 console encoding on Windows
 if sys.platform == "win32":
@@ -151,6 +153,29 @@ def list_excluded():
     print()
 
 
+def build_vsix() -> Optional[Path]:
+    """Builds the extension and packages a .vsix file."""
+    print("🔨 Compiling extension bundle (esbuild)...")
+    res = subprocess.run(["node", "esbuild.js"], cwd=str(SOURCE_DIR), capture_output=True, text=True)
+    if res.returncode != 0:
+        print(f"❌ Build failed:\n{res.stderr}")
+        return None
+    print("📦 Packaging .vsix file...")
+    # Try npx @vscode/vsce
+    cmd = ["npx", "@vscode/vsce", "package", "--no-git-tag-version"]
+    if sys.platform == "win32":
+        cmd = ["npx.cmd", "@vscode/vsce", "package", "--no-git-tag-version"]
+    res2 = subprocess.run(cmd, cwd=str(SOURCE_DIR), capture_output=True, text=True)
+    if res2.returncode != 0:
+        print(f"❌ VSIX packaging failed:\n{res2.stderr or res2.stdout}")
+        return None
+
+    for f in SOURCE_DIR.glob("*.vsix"):
+        print(f"✅ Created VSIX package: {f.name}")
+        return f
+    return None
+
+
 def show_status():
     """Prints current status of the plugin and exclusions."""
     is_installed = GLOBAL_PLUGIN_DEST.exists()
@@ -160,21 +185,26 @@ def show_status():
     print("\n" + "=" * 60)
     print(f" 🚀 Antigravity Extension Status: {PLUGIN_NAME}")
     print("=" * 60)
-    print(f"  • Global Installation : {'✅ Installed' if is_installed else '❌ Not Installed'}")
-    print(f"  • Global Location     : {GLOBAL_PLUGIN_DEST}")
-    print(f"  • Master Switch       : {'🟢 Enabled' if enabled else '🔴 Disabled'}")
-    print(f"  • Excluded Projects   : {len(cfg.get('exclude_projects', []))}")
+    print(f"  • AI Agent Plugin (Global) : {'✅ Installed' if is_installed else '❌ Not Installed'}")
+    print(f"  • Global Location          : {GLOBAL_PLUGIN_DEST}")
+    print(f"  • Master Switch            : {'🟢 Enabled' if enabled else '🔴 Disabled'}")
+    print(f"  • Excluded Projects        : {len(cfg.get('exclude_projects', []))}")
     print("=" * 60 + "\n")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Manage ag-docs-sync Antigravity Extension")
+    parser.add_argument("--vsix", action="store_true", help="Build and package .vsix for Antigravity IDE")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # install
     install_parser = subparsers.add_parser("install", help="Install the extension")
-    install_parser.add_argument("--global", "-g", action="store_true", default=True, help="Install globally (default)")
+    install_parser.add_argument("--global", "-g", dest="is_global", action="store_true", default=True, help="Install AI Agent plugin globally (default)")
     install_parser.add_argument("--local", "-l", metavar="WORKSPACE", help="Install in a specific workspace")
+    install_parser.add_argument("--vsix", action="store_true", help="Build and package .vsix for Antigravity IDE")
+
+    # package / build-vsix
+    subparsers.add_parser("build-vsix", help="Build and package .vsix for IDE installation")
 
     # uninstall
     subparsers.add_parser("uninstall", help="Uninstall the global extension")
@@ -194,6 +224,13 @@ def main():
     subparsers.add_parser("list-excluded", help="List all excluded projects")
 
     args = parser.parse_args()
+
+    if getattr(args, "vsix", False) or args.command == "build-vsix":
+        build_vsix()
+        if args.command != "install" and not getattr(args, "local", None):
+            install_global()
+            show_status()
+            return
 
     if args.command == "install":
         if args.local:
@@ -218,3 +255,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

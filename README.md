@@ -1,49 +1,86 @@
-# 🚀 Antigravity Docs & Session Log Archival Extension (`ag-docs-sync`)
+# 🚀 Antigravity Docs & Session Log Archival Extension
 
 > **Created by Don Sony and [infuse.ae](https://infuse.ae).**
 
-An automatic, zero-friction Antigravity extension that captures, categorizes, timestamps, and indexes all project documents, brain artifacts, and color-coded build/conversation session logs into a clean `.docs/` repository folder across **all your projects**.
+A **hybrid Antigravity IDE Extension & AI Agent Plugin** that automatically captures, categorizes, timestamps, and indexes all project documents, brain artifacts, and color-coded conversation session logs into a clean `.docs/` directory across **all your projects**.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Dual-Layer Architecture
 
-1. **Automatic Archival on Session Completion**:
-   - Uses Antigravity's `Stop` lifecycle hook (`hooks.json`) to trigger immediately when an agent task finishes.
-   - Requires zero manual intervention.
+`ag-docs-sync` works simultaneously at two levels with **zero conflicts**:
 
-2. **Organized, Aptly Named Subfolders (`.docs/`)**:
-   - `.docs/plans/`: Implementation plans, architecture designs, timestamped snapshots (`implementation_plan_YYYY-MM-DD_HHmmss.md`) + active pointer (`implementation_plan.md`).
-   - `.docs/walkthroughs/`: Verification summaries, release notes, changelogs.
-   - `.docs/research/`: Technical notes, audits, benchmark docs.
-   - `.docs/diagrams/`: Mermaid diagrams, SVGs, architecture schemas.
-   - `.docs/media/`: Generated UI mockups, screenshots, recordings.
-   - `.docs/scratch/`: Temporary test scripts and scratch data.
-   - `.docs/logs/`: Color-coded session logs and timeline history.
-   - `.docs/INDEX.md` & `README.md`: Auto-generated master catalog with clickable links, metadata, and timestamps.
+```mermaid
+graph TD
+    subgraph IDE_UI ["🖥️ Antigravity IDE (VS Code Host)"]
+        UI_EXT["Extensions > Installed (ag-docs-sync)"]
+        CMD["Command Palette & Status Bar"]
+        SETTINGS["IDE Settings UI"]
+        TREE["Sidebar Explorer: .docs/ Tree View"]
+    end
 
-3. **Rich Color-Coded Markdown Build Logs**:
-   - 🎯 **User Instructions & Goals**: Blue/Cyan callout blocks (`> [!NOTE]`).
-   - 🧠 **Thought Process & Reasoning**: Collapsible Purple/Indigo internal reasoning blocks (`> [!TIP]`).
-   - ❓ **Questions & Answers**: Interactive modal questions, selections, user confirmations (`> [!IMPORTANT]`).
-   - 🛠️ **Tool Executions**: Action summaries, tool arguments, output previews, diffs, error badges (`> [!CAUTION]`).
-   - 📊 **Execution Metrics**: Timestamps, duration, prompt counts, and tool actions.
-   - 📜 **Cumulative Timeline (`.docs/logs/TIMELINE.md`)**: Chronological index of all sessions across the project lifetime.
+    subgraph AGENT_CORE ["🤖 Antigravity AI Agent Engine"]
+        PLUGIN["~/.gemini/config/plugins/ag-docs-sync"]
+        SKILL["Skills & Rules (ag-docs-sync)"]
+        HOOKS["Lifecycle Hooks (Stop Event)"]
+    end
 
-4. **Global & Project Exclusions**:
-   - Exclude specific projects globally via CLI or configuration.
-   - Local project opt-out via `.docs-ignore` file or `.docs-sync.json`.
-   - Fast early exit for skipped projects with zero performance penalty.
+    subgraph ENGINE ["🐍 Shared Python Sync Engine"]
+        SCRIPTS["scripts/sync_docs.py & artifact_manager.py"]
+        CONFIG["Single Source of Truth: config.json"]
+        OUTPUT[".docs/ (Project Documentation & Logs)"]
+    end
 
-5. **Timestamped File Identification**:
-   - Every archived file and log uses ISO-standardized timestamped naming (`<name>_YYYY-MM-DD_HHmmss.<ext>`) for easy auditing, historical diffing, and version tracking.
+    UI_EXT -->|Invokes & Monitors| ENGINE
+    AGENT_CORE -->|Automates on task completion| ENGINE
+    ENGINE --- CONFIG
+    ENGINE -->|Writes to| OUTPUT
+    UI_EXT -.->|Auto-links/Synchronizes| PLUGIN
+```
+
+### 1. Antigravity IDE GUI Extension
+- **Visible in `Extensions >> Installed`** in Antigravity IDE / VS Code.
+- **Status Bar Widget**: Displays real-time sync status (`$(book) Docs: Active`) with one-click manual sync.
+- **Sidebar Tree View**: Browse indexed `.docs/` categories (Plans, Walkthroughs, Decisions, Session Logs) directly from the IDE activity bar.
+- **Command Palette Commands**:
+  - `Antigravity Docs: Sync Now` — Immediately sync project artifacts.
+  - `Antigravity Docs: Open .docs Directory` — Jump straight to documentation.
+  - `Antigravity Docs: Open Session Logs` — Browse archived conversation transcripts.
+  - `Antigravity Docs: Toggle Auto-Sync On/Off` — Toggle global master switch.
+  - `Antigravity Docs: Exclude Current Workspace` — Opt out current workspace.
+  - `Antigravity Docs: Re-enable Current Workspace` — Re-enable current workspace.
+  - `Antigravity Docs: Show Status & Diagnostic Info` — Print diagnostic health check.
+
+### 2. Antigravity AI Agent Plugin
+- Installed in `~/.gemini/config/plugins/ag-docs-sync` (or `<workspace>/.agents/plugins/ag-docs-sync`).
+- Uses Antigravity's `Stop` lifecycle hook (`hooks.json`) to trigger automatic background archival whenever the AI finishes a task.
+- Provides `ag-docs-sync` skill (`SKILL.md`) for AI-assisted documentation management.
+
+---
+
+## 🔒 Zero Conflict Guarantee
+
+The IDE extension and the AI agent plugin share:
+- **A Single Source of Truth**: All configurations and project exclusions reside in `~/.gemini/config/plugins/ag-docs-sync/config.json`.
+- **Idempotent File Syncing**: File hashing (MD5) and timestamp checks ensure that manual triggers from the IDE UI and automated AI agent hooks never collide or duplicate writes.
+- **Synchronized Exclusions**: Excluding or re-enabling a project via the IDE Command Palette applies immediately to both the AI agent and the GUI.
 
 ---
 
 ## 📦 Installation & Setup
 
-### 1. Install Globally (Recommended)
-Installs the extension globally to `~/.gemini/config/plugins/ag-docs-sync`. Once installed, it automatically runs across **all projects built in Antigravity**.
+### Option 1: Install Both IDE Extension & Agent Plugin (Recommended)
+
+1. **Build and package the `.vsix` extension:**
+   ```bash
+   python install.py --vsix
+   ```
+2. **Install in Antigravity IDE:**
+   - In Antigravity IDE, press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac).
+   - Type **`Extensions: Install from VSIX...`** and select `ag-docs-sync-1.0.2.vsix`.
+   - *The extension will activate, appear in `Extensions >> Installed`, and automatically verify the AI agent plugin.*
+
+### Option 2: Install AI Agent Plugin Only (CLI / Background)
 
 ```bash
 # Windows
@@ -52,11 +89,11 @@ Installs the extension globally to `~/.gemini/config/plugins/ag-docs-sync`. Once
 # PowerShell
 .\install.ps1
 
-# Python (Cross-platform)
+# Cross-platform Python
 python install.py
 ```
 
-### 2. Check Installation Status
+### Check Installation Status
 ```bash
 python install.py status
 ```
@@ -65,9 +102,11 @@ python install.py status
 
 ## 🚫 Excluding Projects from Auto-Sync
 
-If you have private, temporary, or sensitive projects you do not want synced:
+### Via IDE Command Palette
+1. Open the project in Antigravity IDE.
+2. Press `Ctrl+Shift+P` → **`Antigravity Docs: Exclude Current Workspace from Auto-Sync`**.
 
-### Option A: Global CLI Exclusion
+### Via CLI
 ```bash
 # Exclude a project path
 python install.py exclude "D:/Projects/PrivateApp"
@@ -79,18 +118,10 @@ python install.py unexclude "D:/Projects/PrivateApp"
 python install.py list-excluded
 ```
 
-### Option B: Local Project Marker (`.docs-ignore`)
-Place an empty `.docs-ignore` or `.ag-docs-ignore` file in the project's root folder:
+### Via Local Marker File (`.docs-ignore`)
+Place an empty `.docs-ignore` file in the project's root folder:
 ```bash
 echo. > .docs-ignore
-```
-
-### Option C: Local Config (`.docs-sync.json`)
-Create `.docs-sync.json` in the workspace root:
-```json
-{
-  "enabled": false
-}
 ```
 
 ---
@@ -124,39 +155,35 @@ my-project/
 
 ---
 
-## 🛠️ Configuration Options
+## 📝 Changelog
 
-Configuration can be customized globally in `~/.gemini/config/plugins/ag-docs-sync/config.json` or per-project in `.docs-sync.json`:
+### v1.0.2
+- **Hybrid IDE & Agent Architecture**:
+  - Added VS Code / Antigravity IDE GUI Extension manifest and runtime (`package.json`, `dist/extension.js`).
+  - Added **Extensions → Installed** visibility.
+  - Added **Status Bar Widget** (`$(book) Docs: Active`) with manual sync trigger.
+  - Added **Sidebar Tree View** (`Project Documentation (.docs/)`) in the Activity Bar.
+  - Added Command Palette commands (`Sync Now`, `Open .docs`, `Open Session Logs`, `Exclude/Include Workspace`, `Show Status`).
+  - Added **Zero-Conflict Coexistence Engine**: Shared single source of truth configuration and MD5 hash idempotency.
+  - Packaged installable `.vsix` bundle via `python install.py --vsix`.
 
-```json
-{
-  "enabled": true,
-  "docs_root": ".docs",
-  "exclude_projects": [
-    "D:/Temp/*"
-  ],
-  "timestamp_format": "%Y-%m-%d_%H%M%S",
-  "keep_latest_symlink_or_copy": true,
-  "session_logging": {
-    "enabled": true,
-    "include_thoughts": true,
-    "include_tools": true,
-    "include_qa": true,
-    "include_prompts": true,
-    "collapse_thoughts": true,
-    "collapse_tool_outputs": true
-  }
-}
-```
+### v1.0.1
+- **Automated Lifecycle Hooks & Session Log Archival**:
+  - Integrated Antigravity `Stop` event hook to automatically archive artifacts on task completion.
+  - Color-coded markdown session logs with tool execution badges and thought block collapsing.
+  - Categorized subfolder organization (`plans/`, `walkthroughs/`, `research/`, `diagrams/`, `media/`, `scratch/`, `logs/`).
+  - Timestamped snapshot history and master catalog `INDEX.md`.
 
 ---
 
 ## 🧪 Testing
 
-Run the test suite:
+Run the Python test suite:
 ```bash
 python -m unittest discover tests
 ```
+
+---
 
 ## 👤 Author & Organization
 - **Created by**: Don Sony and [infuse.ae](https://infuse.ae)
@@ -166,3 +193,4 @@ python -m unittest discover tests
 
 ## 📄 License
 MIT License
+

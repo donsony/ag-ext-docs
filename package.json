@@ -1,0 +1,154 @@
+{
+  "name": "ag-docs-sync",
+  "displayName": "Antigravity Docs Sync",
+  "description": "Antigravity extension to automatically archive, categorize, and timestamp project documents, artifacts, and color-coded conversation session logs in a structured .docs/ directory.",
+  "version": "1.0.2",
+  "publisher": "infuse",
+  "author": {
+    "name": "Don Sony",
+    "email": "support@infuse.ae",
+    "url": "https://infuse.ae"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/donsony/ag-ext-docs"
+  },
+  "homepage": "https://github.com/donsony/ag-ext-docs#readme",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Formatters"
+  ],
+  "keywords": [
+    "antigravity",
+    "docs",
+    "artifacts",
+    "session-logs",
+    "archival",
+    "markdown"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "agDocsSync.syncNow",
+        "title": "Antigravity Docs: Sync Now",
+        "category": "Antigravity Docs",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "agDocsSync.openDocs",
+        "title": "Antigravity Docs: Open .docs Directory",
+        "category": "Antigravity Docs",
+        "icon": "$(folder-opened)"
+      },
+      {
+        "command": "agDocsSync.openSessionLogs",
+        "title": "Antigravity Docs: Open Session Logs",
+        "category": "Antigravity Docs",
+        "icon": "$(history)"
+      },
+      {
+        "command": "agDocsSync.toggleSync",
+        "title": "Antigravity Docs: Toggle Auto-Sync On/Off",
+        "category": "Antigravity Docs"
+      },
+      {
+        "command": "agDocsSync.excludeWorkspace",
+        "title": "Antigravity Docs: Exclude Current Workspace from Auto-Sync",
+        "category": "Antigravity Docs"
+      },
+      {
+        "command": "agDocsSync.includeWorkspace",
+        "title": "Antigravity Docs: Re-enable Current Workspace for Auto-Sync",
+        "category": "Antigravity Docs"
+      },
+      {
+        "command": "agDocsSync.showStatus",
+        "title": "Antigravity Docs: Show Status & Diagnostic Info",
+        "category": "Antigravity Docs"
+      },
+      {
+        "command": "agDocsSync.refreshTree",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agDocsContainer",
+          "title": "Antigravity Docs",
+          "icon": "$(book)"
+        }
+      ]
+    },
+    "views": {
+      "agDocsContainer": [
+        {
+          "id": "agDocsTreeView",
+          "name": "Project Documentation (.docs/)"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "agDocsSync.refreshTree",
+          "when": "view == agDocsTreeView",
+          "group": "navigation"
+        },
+        {
+          "command": "agDocsSync.syncNow",
+          "when": "view == agDocsTreeView",
+          "group": "navigation"
+        },
+        {
+          "command": "agDocsSync.openDocs",
+          "when": "view == agDocsTreeView",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Antigravity Docs Sync",
+      "properties": {
+        "agDocsSync.pythonPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Python executable. If empty, standard system python3/python will be used."
+        },
+        "agDocsSync.showStatusBarItem": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to display the Antigravity Docs Sync item in the status bar."
+        },
+        "agDocsSync.autoSyncOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically trigger document index rebuild when markdown files inside .docs/ or project root are modified."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "vsce package --no-git-tag-version"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.2.1",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.4.5"
+  }
+}

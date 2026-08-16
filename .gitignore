@@ -11,3 +11,12 @@ venv/
 # Antigravity temporary task logs & internal files
 .system_generated/
 *.log
+
+# Antigravity generated documentation & logs
+.docs/
+
+# Node & IDE
+node_modules/
+*.vsix
+.vscode-test/
+
