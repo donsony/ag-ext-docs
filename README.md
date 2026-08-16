@@ -1,5 +1,7 @@
 # 🚀 Antigravity Docs & Session Log Archival Extension (`ag-docs-sync`)
 
+> **Created by Don Sony and [infuse.ae](https://infuse.ae).**
+
 An automatic, zero-friction Antigravity extension that captures, categorizes, timestamps, and indexes all project documents, brain artifacts, and color-coded build/conversation session logs into a clean `.docs/` repository folder across **all your projects**.
 
 ---
@@ -157,8 +159,8 @@ python -m unittest discover tests
 ```
 
 ## 👤 Author & Organization
-- **Author**: Don Sony
-- **Company**: [infuse.ae](https://infuse.ae)
+- **Created by**: Don Sony and [infuse.ae](https://infuse.ae)
+- **Website**: [https://infuse.ae](https://infuse.ae)
 
 ---
 
